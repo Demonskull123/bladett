@@ -1,15 +1,6 @@
-local TeekUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Demonskull123/bundleui/refs/heads/main/TempoUI-bundle.lua"))()
-local UI = TeekUI.new({ Title = "TEMPO", Subtitle = "Hub", Version = "v1" })
-local v318 = UI:Tab("Auto Parry", "swords")
-local v319 = UI:Tab("Visuals", "eye")
-local v320 = UI:Tab("Social", "users")
-local v321 = UI:Tab("Unlocks", "lock-open")
-local v322 = UI:Tab("Movement", "footprints")
-local v323 = UI:Tab("Misc", "settings")
-
 --[[
-    TEMPO Hub — full blade logic on TeekUI (same shell as TempoUI-bundle test)
-    Window/tabs keep same names: Auto Parry, Visuals, Social, Unlocks, Movement, Misc
+    TEMPO Hub — full LexBlade feature set on TeekUI
+    Auto Parry, Visuals, Social, Unlocks, Movement, Misc
 --]]
 
 local env = (type(getgenv) == "function" and getgenv()) or _G
@@ -18,6 +9,8 @@ if env.__TEMPOHUB_LOADED then
     if c then pcall(c) end
 end
 env.__TEMPOHUB_LOADED = true
+
+UI = nil
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -31,17 +24,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
 local CoreGui = game:GetService("CoreGui")
 local TextChatService = game:GetService("TextChatService")
-
 local LocalPlayer = Players.LocalPlayer
 
 local function Notify(title, content)
     pcall(function()
         if UI and UI.Notify then
-            UI:Notify(tostring(title or "") .. " — " .. tostring(content or ""))
+            UI:Notify(tostring(title or "") .. " — " .. tostring(content or ""), "good")
         end
     end)
 end
-
 
 local function fn1(p1, p2)
     local v2, v3 = pcall(p2)
@@ -2248,226 +2239,211 @@ end
 fn90()
 
 
-fn1("Auto Parry", function()
-    v318:Section("Auto Parry")
-    v318:Toggle("Auto Parry", false, function(p114)
-        v39.autoParry = p114
-        if p114 then
-            local v391 = fn15()
-            if v391 then fn41(v391) end
-        else
-            v68 = false
-        end
-        fn73()
-    end)
-    v318:Dropdown("Parry Method", {"Dual", "Mouse", "Remote", "Keypress"}, "Dual", function(p115)
-        v39.parryMethod = p115
-    end)
-    v318:Slider("Parry Accuracy (%)", 0, 100, 100, function(p116)
-        v39.parryAccuracy = p116
-    end)
+----------------------------------------------------------------
+-- TeekUI shell (same layout as the bundle example)
+----------------------------------------------------------------
+local TeekUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Demonskull123/bundleui/refs/heads/main/TempoUI-bundle.lua"))()
+UI = TeekUI.new({ Title = "TEMPO", Subtitle = "Hub", Version = "v1" })
 
-    v318:Section("Timing Window")
-    v318:Toggle("Auto-Window", false, function(p117)
-        v39.autoWindow = p117
-        if p117 then fn57(fn14()) end
-    end)
-    v318:Toggle("Dynamic Window", true, function(p118)
-        v39.useDynamicWindow = p118
-    end)
-    v318:Slider("Simple Ratio", 0.2, 1.0, 0.55, function(p119)
-        v39.simpleRatio = p119
-    end)
-    v318:Slider("Window Base (s)", 0.1, 0.6, 0.32, function(p120)
-        v39.windowBase = p120
-    end)
-    v318:Slider("Window Speed Factor", 0.0, 0.002, 0.00050, function(p121)
-        v39.windowSpeedFac = p121
-    end)
-    v318:Slider("Window Max (s)", 0.2, 0.8, 0.45, function(p122)
-        v39.windowMax = p122
-    end)
-    v318:Slider("Window Min (s)", 0.05, 0.4, 0.16, function(p123)
-        v39.windowMin = p123
-    end)
-    v318:Toggle("Add Ping To Window", true, function(p124)
-        v39.useAutoPing = p124
-    end)
+local tabParry = UI:Tab("Auto Parry", "swords")
+local tabVisuals = UI:Tab("Visuals", "eye")
+local tabSocial = UI:Tab("Social", "users")
+local tabUnlocks = UI:Tab("Unlocks", "lock-open")
+local tabMovement = UI:Tab("Movement", "footprints")
+local tabMisc = UI:Tab("Misc", "settings")
 
-    v318:Section("FPS Sorter")
-    v318:Toggle("Auto-FPS", false, function(p125)
-        v39.autoFps = p125
-        if p125 then fn8(v41.smoothed) end
-    end)
-    v318:Toggle("FPS Comp", true, function(p126)
-        v39.useFpsComp = p126
-    end)
-    v318:Toggle("Fast Spike Response", true, function(p127)
-        v39.fastSpikeResponse = p127
-    end)
-    v318:Slider("FPS Comp Factor", 0.0, 0.10, 0.03, function(p128)
-        v39.fpsCompFactor = p128
-    end)
-    v318:Slider("FPS Comp Max Cap (s)", 0.02, 0.30, 0.12, function(p129)
-        v39.fpsCompMax = p129
-    end)
-    v318:Slider("FPS Override", 0, 360, 0, function(p130)
-        v39.fpsOverride = p130
-    end)
-
-    v318:Section("Camera Curve Effect")
-    v318:Dropdown("Curve Effect", {"Off", "Right", "Left", "Up", "Down", "Random", "Camera"}, "Off", function(p131)
-        v39.curveDeflectMode = p131
-        if p131 == "Off" then fn29() end
-    end)
-    v318:Slider("Camera Effect Strength (%)", 0, 100, 35, function(p132)
-        v39.curveDeflectStrength = p132
-    end)
-    v318:Button("Test Camera Effect", true, function()
-        if v39.curveDeflectMode == "Off" then
-            Notify("Camera Curve", "Select a mode first")
-            return
-        end
-        fn30(v39.curveDeflectMode)
-    end)
-
-    v318:Section("Clash Settings")
-    v318:Toggle("Auto Clash", false, function(p133)
-        v39.autoClash = p133
-        if not p133 then
-            v71 = false
-            v74 = {}
-        end
-        fn73()
-    end)
-    v318:Toggle("Auto-Configure Clash", false, function(p134)
-        v39.autoClashConfig = p134
-        if p134 then fn58(fn14(), v41.smoothed) end
-    end)
-    v318:Slider("Clash Detection Radius (studs)", 10, 40, 20, function(p135)
-        v39.clashDetectRadius = p135
-    end)
-    v318:Slider("Exchange Threshold", 2, 8, 3, function(p136)
-        v39.clashExchangeThreshold = p136
-    end)
-    v318:Dropdown("Clash Spam Speed", {"Legit", "Pro", "Master", "Machine"}, "Pro", function(p137)
-        v39.clashSpamMode = p137
-    end)
-    v318:Toggle("Clash Priority", true, function(p138)
-        v39.clashPriority = p138
-    end)
-
-    v318:Section("Ability Counter")
-    v318:Toggle("Ability Counter", false, function(p139)
-        v39.abilityCounter = p139
-        if not p139 then fn37() end
-        fn73()
-    end)
-    v318:Slider("Speed Spike Threshold (%)", 20, 100, 50, function(p140)
-        v39.abilitySpikeThreshold = p140 / 100
-    end)
-
-    v318:Section("Filters")
-    v318:Slider("Max Parry Distance (studs)", 0, 200, 100, function(p141)
-        v39.maxParryDistance = p141
-    end)
-    v318:Slider("Max Parry Angle (degrees)", 30, 180, 180, function(p142)
-        v39.maxParryAngle = p142
-    end)
-    v318:Slider("Same-Ball Lockout (ms)", 0, 300, 80, function(p143)
-        v39.sameBallLockout = p143 / 1000
-    end)
-    v318:Toggle("Curve Prediction", true, function(p144)
-        v39.curvePrediction = p144
-    end)
+-- Auto Parry
+tabParry:Section("Auto Parry")
+tabParry:Toggle("Auto Parry", false, function(v)
+    v39.autoParry = v
+    if v then
+        local b = fn15()
+        if b then fn41(b) end
+    else
+        v68 = false
+    end
+    fn73()
+end)
+tabParry:Dropdown("Parry Method", {"Dual", "Mouse", "Remote", "Keypress"}, "Dual", function(v)
+    v39.parryMethod = v
+end)
+tabParry:Slider("Parry Accuracy (%)", 0, 100, 100, function(v)
+    v39.parryAccuracy = v
 end)
 
-fn1("Visuals", function()
-    v319:Toggle("Parry Orb", false, function(p145)
-        v39.orbOn = p145
-        if p145 then
-            fn62()
-            v242, v243, v244 = fn61()
-        else
-            fn62()
-        end
-        fn73()
-    end)
-    v319:Toggle("Overhead Stats", true, function(p146)
-        v39.showImpactTime = p146
-        fn73()
-    end)
+tabParry:Section("Timing Window")
+tabParry:Toggle("Auto-Window", false, function(v)
+    v39.autoWindow = v
+    if v then fn57(fn14()) end
+end)
+tabParry:Toggle("Dynamic Window", true, function(v)
+    v39.useDynamicWindow = v
+end)
+tabParry:Slider("Simple Ratio", 0.2, 1.0, 0.55, function(v)
+    v39.simpleRatio = v
+end)
+tabParry:Slider("Window Base (s)", 0.1, 0.6, 0.32, function(v)
+    v39.windowBase = v
+end)
+tabParry:Slider("Window Speed Factor", 0.0, 0.002, 0.00050, function(v)
+    v39.windowSpeedFac = v
+end)
+tabParry:Slider("Window Max (s)", 0.2, 0.8, 0.45, function(v)
+    v39.windowMax = v
+end)
+tabParry:Slider("Window Min (s)", 0.05, 0.4, 0.16, function(v)
+    v39.windowMin = v
+end)
+tabParry:Toggle("Add Ping To Window", true, function(v)
+    v39.useAutoPing = v
 end)
 
-fn1("Social", function()
-    v320:Section("Presence")
-    v320:Label("When enabled, other Tempo Hub users in the same server are notified that you are here. Tier displays above their head.")
-    v320:Toggle("Broadcast Presence", false, function(p147)
-        v324.enabled = p147
-        v39.presenceEnabled = p147
-        if p147 then
-            v324.leftUsers = {}
-            v324.replyCooldowns = {}
-            v324.lastOutboundReply = 0
-            fn85()
-            task.spawn(function()
-                task.wait(1)
-                fn81(fn77())
-            end)
-            Notify("Presence", "Enabled. Broadcasting as " .. fn75(fn74()).name .. ".")
-        else
-            fn82()
-            for v401, v402 in pairs(v324.known) do
-                local v403 = Players:FindFirstChild(v401)
-                if v403 then fn83(v403) end
-                fn88(v401)
-            end
-            v324.known = {}
-            Notify("Presence", "Disabled.")
-        end
-    end)
-    v320:Toggle("Show Billboard Above Head", true, function(p148)
-        v324.billboardsEnabled = p148
-        if p148 then
-            for v404, v405 in pairs(v324.known) do
-                local v406 = Players:FindFirstChild(v404)
-                if v406 then fn84(v406, v405.tier) end
-            end
-        else
-            for v407, v408 in pairs(v324.known) do
-                local v409 = Players:FindFirstChild(v407)
-                if v409 then fn83(v409) end
-            end
-        end
-    end)
-    v320:Section("Detected Users")
-    local usersLabel = v320:Label("No users detected.")
-    task.spawn(function()
-        while task.wait(2) do
-            local v411 = {}
-            for v412, v413 in pairs(v324.known) do
-                table.insert(v411, { name = v412, data = v413 })
-            end
-            table.sort(v411, function(p149, p150)
-                if p149.data.rank ~= p150.data.rank then
-                    return p149.data.rank > p150.data.rank
-                end
-                return p149.name:lower() < p150.name:lower()
-            end)
-            local v414 = {}
-            for _, v416 in ipairs(v411) do
-                table.insert(v414, string.format("%s  ·  %s", v416.name, v416.data.tierName))
-            end
-            local v417 = (#v414 == 0) and "No users detected." or table.concat(v414, "\n")
-            pcall(function()
-                -- TeekUI Label may not support live Set; recreate is overkill, best-effort
-                if usersLabel and type(usersLabel) == "table" and usersLabel.Set then
-                    usersLabel:Set(v417)
-                end
-            end)
-        end
-    end)
+tabParry:Section("FPS Sorter")
+tabParry:Toggle("Auto-FPS", false, function(v)
+    v39.autoFps = v
+    if v then fn8(v41.smoothed) end
 end)
+tabParry:Toggle("FPS Comp", true, function(v)
+    v39.useFpsComp = v
+end)
+tabParry:Toggle("Fast Spike Response", true, function(v)
+    v39.fastSpikeResponse = v
+end)
+tabParry:Slider("FPS Comp Factor", 0.0, 0.10, 0.03, function(v)
+    v39.fpsCompFactor = v
+end)
+tabParry:Slider("FPS Comp Max Cap (s)", 0.02, 0.30, 0.12, function(v)
+    v39.fpsCompMax = v
+end)
+tabParry:Slider("FPS Override", 0, 360, 0, function(v)
+    v39.fpsOverride = v
+end)
+
+tabParry:Section("Camera Curve Effect")
+tabParry:Dropdown("Curve Effect", {"Off", "Right", "Left", "Up", "Down", "Random", "Camera"}, "Off", function(v)
+    v39.curveDeflectMode = v
+    if v == "Off" then fn29() end
+end)
+tabParry:Slider("Camera Effect Strength (%)", 0, 100, 35, function(v)
+    v39.curveDeflectStrength = v
+end)
+tabParry:Button("Test Camera Effect", true, function()
+    if v39.curveDeflectMode == "Off" then
+        Notify("Camera Curve", "Select a mode first")
+        return
+    end
+    fn30(v39.curveDeflectMode)
+end)
+
+tabParry:Section("Clash Settings")
+tabParry:Toggle("Auto Clash", false, function(v)
+    v39.autoClash = v
+    if not v then
+        v71 = false
+        v74 = {}
+    end
+    fn73()
+end)
+tabParry:Toggle("Auto-Configure Clash", false, function(v)
+    v39.autoClashConfig = v
+    if v then fn58(fn14(), v41.smoothed) end
+end)
+tabParry:Slider("Clash Detection Radius (studs)", 10, 40, 20, function(v)
+    v39.clashDetectRadius = v
+end)
+tabParry:Slider("Exchange Threshold", 2, 8, 3, function(v)
+    v39.clashExchangeThreshold = v
+end)
+tabParry:Dropdown("Clash Spam Speed", {"Legit", "Pro", "Master", "Machine"}, "Pro", function(v)
+    v39.clashSpamMode = v
+end)
+tabParry:Toggle("Clash Priority", true, function(v)
+    v39.clashPriority = v
+end)
+
+tabParry:Section("Ability Counter")
+tabParry:Toggle("Ability Counter", false, function(v)
+    v39.abilityCounter = v
+    if not v then fn37() end
+    fn73()
+end)
+tabParry:Slider("Speed Spike Threshold (%)", 20, 100, 50, function(v)
+    v39.abilitySpikeThreshold = v / 100
+end)
+
+tabParry:Section("Filters")
+tabParry:Slider("Max Parry Distance (studs)", 0, 200, 100, function(v)
+    v39.maxParryDistance = v
+end)
+tabParry:Slider("Max Parry Angle (degrees)", 30, 180, 180, function(v)
+    v39.maxParryAngle = v
+end)
+tabParry:Slider("Same-Ball Lockout (ms)", 0, 300, 80, function(v)
+    v39.sameBallLockout = v / 1000
+end)
+tabParry:Toggle("Curve Prediction", true, function(v)
+    v39.curvePrediction = v
+end)
+
+-- Visuals
+tabVisuals:Toggle("Parry Orb", false, function(v)
+    v39.orbOn = v
+    if v then
+        fn62()
+        v242, v243, v244 = fn61()
+    else
+        fn62()
+    end
+    fn73()
+end)
+tabVisuals:Toggle("Overhead Stats", true, function(v)
+    v39.showImpactTime = v
+    fn73()
+end)
+
+-- Social
+tabSocial:Section("Presence")
+tabSocial:Label("Other Tempo Hub users in this server get notified. Tier shows above their head.")
+tabSocial:Toggle("Broadcast Presence", false, function(v)
+    v324.enabled = v
+    v39.presenceEnabled = v
+    if v then
+        v324.leftUsers = {}
+        v324.replyCooldowns = {}
+        v324.lastOutboundReply = 0
+        fn85()
+        task.spawn(function()
+            task.wait(1)
+            fn81(fn77())
+        end)
+        Notify("Presence", "Enabled. Broadcasting as " .. fn75(fn74()).name .. ".")
+    else
+        fn82()
+        for name, _ in pairs(v324.known) do
+            local plr = Players:FindFirstChild(name)
+            if plr then fn83(plr) end
+            fn88(name)
+        end
+        v324.known = {}
+        Notify("Presence", "Disabled.")
+    end
+end)
+tabSocial:Toggle("Show Billboard Above Head", true, function(v)
+    v324.billboardsEnabled = v
+    if v then
+        for name, data in pairs(v324.known) do
+            local plr = Players:FindFirstChild(name)
+            if plr then fn84(plr, data.tier) end
+        end
+    else
+        for name, _ in pairs(v324.known) do
+            local plr = Players:FindFirstChild(name)
+            if plr then fn83(plr) end
+        end
+    end
+end)
+tabSocial:Section("Detected Users")
+tabSocial:Label("Users appear here when presence is on.")
 
 pcall(function()
     table.insert(v49, game:BindToClose(function()
@@ -2478,301 +2454,246 @@ pcall(function()
     end))
 end)
 
--- Unlocks (async sword enum + force equip)
-local v418 = {
-    rarity = "Secret",
-    searchText = "",
-    sword = nil,
-}
-local v419 = false
-local fn91
+-- Unlocks
+local unlockState = { rarity = "Secret", searchText = "", sword = nil, ready = false }
+local refreshSwordPick
 
-fn1("Unlocks", function()
-    v321:Section("Loading Assets")
-    local loadLabel = v321:Label("Enumerating sword collection…")
-
-    local function fn92()
-        v146.enumerateSwords()
-        local v422 = v146.allSwordNames or {}
-        local v423 = #v422
-        local v424 = {}
-        for _, v426 in ipairs(v35) do
-            v424[v426] = {}
-        end
-        v424["Other"] = {}
-        local v427, v428 = pcall(function()
-            return require(ReplicatedStorage.Shared.ReplicatedInstances.Swords)
-        end)
-        if v427 and v428 and v423 > 0 then
-            local v429 = 0
-            for v430 = 1, v423, v36 do
-                local v431 = math.min(v430 + v36 - 1, v423)
-                for v432 = v430, v431 do
-                    local v433 = v422[v432]
-                    local v434 = nil
-                    pcall(function()
-                        v434 = v428:GetSword(v433)
-                    end)
-                    local v435 = v434 and v434.Rarity
-                    if v435 and v424[v435] then
-                        table.insert(v424[v435], v433)
-                    else
-                        table.insert(v424["Other"], v433)
-                    end
-                end
-                v429 = v431
-                pcall(function()
-                    if loadLabel and loadLabel.Set then
-                        loadLabel:Set(string.format("Classified %d / %d swords", v429, v423))
-                    end
-                end)
-                task.wait(0.02)
-            end
-        end
-        for _, v438 in pairs(v424) do
-            table.sort(v438)
-        end
-        v146.swordsByRarity = v424
-        return v423
+tabUnlocks:Section("Locker Visibility")
+tabUnlocks:Label("Unlock cosmetics into your locker, then Apply Items.")
+tabUnlocks:Toggle("Unlock All Swords", false, function(v)
+    v39.unlockSwords = v
+end)
+tabUnlocks:Toggle("Unlock All Explosions", false, function(v)
+    v39.unlockExplosions = v
+end)
+tabUnlocks:Button("Apply Items", true, function()
+    local ok, msg = v146.init(true)
+    if ok then
+        Notify("Unlocks", tostring(msg))
+    else
+        Notify("Unlocks", "Failed: " .. tostring(msg))
     end
-
-    local function fn93()
-        v321:Section("Locker Visibility")
-        v321:Label("Every unowned cosmetic becomes unlocked for you and appears in your locker.")
-        v321:Toggle("Unlock All Swords", false, function(p151)
-            v39.unlockSwords = p151
-        end)
-        v321:Toggle("Unlock All Explosions", false, function(p152)
-            v39.unlockExplosions = p152
-        end)
-        v321:Button("Apply Items", true, function()
-            local v439, v440 = v146.init(true)
-            if v439 then
-                Notify("Unlocks", tostring(v440))
-            else
-                Notify("Unlocks", "Failed: " .. tostring(v440))
-            end
-        end)
-
-        v321:Section("Force Equip Sword")
-        v321:Label("Search or pick by rarity, then equip. Useful on executors that miss locker equip hooks.")
-        v321:Dropdown("Rarity Filter", {
-            "Secret", "Unique", "Limited", "LimitedU", "Legendary", "Rare", "Duo", "Normal", "All",
-        }, "Secret", function(p153)
-            v418.rarity = p153
-            fn91()
-        end)
-        v321:Input("Search swords...", 80, function(p154)
-            v418.searchText = p154 or ""
-            fn91()
-        end)
-
-        local swordCycleValues = { "Loading..." }
-        v321:Dropdown("Sword", swordCycleValues, "Loading...", function(p155)
-            v418.sword = p155
-        end)
-
-        v321:Button("Equip Selected Sword", true, function()
-            local v441 = v418.sword
-            if not v441 or v441 == "Loading..." or (type(v441) == "string" and v441:sub(1, 1) == "(") then
-                Notify("Force Equip", "Pick a sword first")
-                return
-            end
-            local v442, v443 = v146.forceEquipSword(v441)
-            if v442 then
-                fn48(v441)
-                Notify("Force Equip", "Equipped: " .. v441)
-            else
-                Notify("Force Equip", "Failed: " .. tostring(v443))
-            end
-        end)
-        v321:Toggle("Auto Re-equip on Respawn", false, function(p156)
-            v39.autoReequip = p156
-            if p156 then
-                fn50()
-                Notify("Auto Re-equip", "Enabled.")
-            else
-                fn51()
-                Notify("Auto Re-equip", "Disabled.")
-            end
-        end)
-        v321:Button("Clear Local Override", true, function()
-            local v444 = LocalPlayer.Character
-            if not v444 then return end
-            for _, v446 in ipairs(v444:GetChildren()) do
-                if v446:GetAttribute("_equippedSword") then
-                    v446:Destroy()
-                end
-            end
-            v39.lastEquippedSword = "Base Sword"
-            fn3(v4.filePath, "")
-            Notify("Force Equip", "Local override cleared.")
-        end)
-
-        v321:Section("Info")
-        v321:Label("Explosions are server-picked on kill — no client equip path. Locker equip can fail on low-level executors; use Force Equip.")
-    end
-
-    fn91 = function()
-        if not v419 then return end
-        local v447 = v146.getSwordsInRarity(v418.rarity)
-        local v448 = v418.searchText
-        local v449
-        if v448 and v448 ~= "" then
-            local v450 = v448:lower()
-            v449 = {}
-            for _, v452 in ipairs(v447) do
-                if v452:lower():find(v450, 1, true) then
-                    table.insert(v449, v452)
-                end
-            end
-        else
-            v449 = v447
-        end
-        if #v449 == 0 then
-            v418.sword = "(no swords match)"
-            return
-        end
-        if #v449 > v37 then
-            v418.sword = v449[1]
-        else
-            v418.sword = v449[1]
-        end
-        -- Dropdown live refresh not exposed the same way; selection still works via list rebuild on next open if TeekUI supports it
-    end
-
-    task.spawn(function()
-        local ok, err = pcall(function()
-            fn92()
-            v419 = true
-            fn93()
-            fn91()
-        end)
-        if not ok then
-            warn("[TempoHub] Unlocks async failed: " .. tostring(err))
-        end
-    end)
 end)
 
-fn1("Movement", function()
-    v322:Toggle("Custom Walk Speed", false, function(p157)
-        v39.walkEnabled = p157
-        fn73()
+tabUnlocks:Section("Force Equip Sword")
+tabUnlocks:Label("Pick rarity / search, then equip. Works when locker equip fails on weak executors.")
+tabUnlocks:Dropdown("Rarity Filter", {
+    "Secret", "Unique", "Limited", "LimitedU", "Legendary", "Rare", "Duo", "Normal", "All",
+}, "Secret", function(v)
+    unlockState.rarity = v
+    if refreshSwordPick then refreshSwordPick() end
+end)
+tabUnlocks:Input("Search swords...", 80, function(txt)
+    unlockState.searchText = txt or ""
+    if refreshSwordPick then refreshSwordPick() end
+end)
+tabUnlocks:Dropdown("Sword", {"Loading..."}, "Loading...", function(v)
+    unlockState.sword = v
+end)
+tabUnlocks:Button("Equip Selected Sword", true, function()
+    local name = unlockState.sword
+    if not name or name == "Loading..." or (type(name) == "string" and name:sub(1, 1) == "(") then
+        Notify("Force Equip", "Pick a sword first")
+        return
+    end
+    local ok, msg = v146.forceEquipSword(name)
+    if ok then
+        fn48(name)
+        Notify("Force Equip", "Equipped: " .. name)
+    else
+        Notify("Force Equip", "Failed: " .. tostring(msg))
+    end
+end)
+tabUnlocks:Toggle("Auto Re-equip on Respawn", false, function(v)
+    v39.autoReequip = v
+    if v then
+        fn50()
+        Notify("Auto Re-equip", "Enabled.")
+    else
+        fn51()
+        Notify("Auto Re-equip", "Disabled.")
+    end
+end)
+tabUnlocks:Button("Clear Local Override", true, function()
+    local char = LocalPlayer.Character
+    if not char then return end
+    for _, ch in ipairs(char:GetChildren()) do
+        if ch:GetAttribute("_equippedSword") then
+            ch:Destroy()
+        end
+    end
+    v39.lastEquippedSword = "Base Sword"
+    fn3(v4.filePath, "")
+    Notify("Force Equip", "Local override cleared.")
+end)
+tabUnlocks:Section("Info")
+tabUnlocks:Label("Explosions are server-side on kill. Use Force Equip if locker equip does nothing.")
+
+refreshSwordPick = function()
+    if not unlockState.ready then return end
+    local list = v146.getSwordsInRarity(unlockState.rarity)
+    local q = unlockState.searchText
+    if q and q ~= "" then
+        local low = q:lower()
+        local filtered = {}
+        for _, n in ipairs(list) do
+            if n:lower():find(low, 1, true) then
+                table.insert(filtered, n)
+            end
+        end
+        list = filtered
+    end
+    if #list == 0 then
+        unlockState.sword = "(no swords match)"
+    else
+        unlockState.sword = list[1]
+    end
+end
+
+task.spawn(function()
+    local ok, err = pcall(function()
+        v146.enumerateSwords()
+        local names = v146.allSwordNames or {}
+        local byR = {}
+        for _, r in ipairs(v35) do byR[r] = {} end
+        byR["Other"] = {}
+        local okS, swordsMod = pcall(function()
+            return require(ReplicatedStorage.Shared.ReplicatedInstances.Swords)
+        end)
+        if okS and swordsMod then
+            for i, name in ipairs(names) do
+                local sw = nil
+                pcall(function() sw = swordsMod:GetSword(name) end)
+                local rarity = sw and sw.Rarity
+                if rarity and byR[rarity] then
+                    table.insert(byR[rarity], name)
+                else
+                    table.insert(byR["Other"], name)
+                end
+                if i % v36 == 0 then task.wait(0.02) end
+            end
+        end
+        for _, t in pairs(byR) do table.sort(t) end
+        v146.swordsByRarity = byR
+        unlockState.ready = true
+        refreshSwordPick()
+        Notify("Unlocks", "Sword list ready (" .. tostring(#names) .. ")")
     end)
-    v322:Slider("Walk Speed", 16, 200, 24, function(p158)
-        v39.walkSpeed = p158
-    end)
-    v322:Toggle("Custom Jump Power", false, function(p159)
-        v39.jumpEnabled = p159
-        fn73()
-    end)
-    v322:Slider("Jump Power", 50, 300, 60, function(p160)
-        v39.jumpPower = p160
-    end)
-    v322:Toggle("Infinite Jump", false, function(p161)
-        v39.infJump = p161
-    end)
+    if not ok then
+        warn("[TempoHub] Unlocks load failed: " .. tostring(err))
+    end
+end)
+
+-- Movement
+tabMovement:Toggle("Custom Walk Speed", false, function(v)
+    v39.walkEnabled = v
+    fn73()
+end)
+tabMovement:Slider("Walk Speed", 16, 200, 24, function(v)
+    v39.walkSpeed = v
+end)
+tabMovement:Toggle("Custom Jump Power", false, function(v)
+    v39.jumpEnabled = v
+    fn73()
+end)
+tabMovement:Slider("Jump Power", 50, 300, 60, function(v)
+    v39.jumpPower = v
+end)
+tabMovement:Toggle("Infinite Jump", false, function(v)
+    v39.infJump = v
 end)
 
 pcall(function()
     fn9(UserInputService.JumpRequest:Connect(function()
         if v39.infJump then
-            local v458 = fn11()
-            if v458 then
-                v458:ChangeState(Enum.HumanoidStateType.Jumping)
+            local hum = fn11()
+            if hum then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
             end
         end
     end))
 end)
 
-fn1("Misc", function()
-    v323:Toggle("Anti AFK", false, function(p162)
-        v39.antiAfk = p162
-        if p162 then fn52() else fn53() end
-    end)
-    v323:Toggle("FPS Boost", false, function(p163)
-        v39.fpsBoost = p163
-        if p163 then fn56() else fn55() end
-    end)
-    v323:Section("Config")
-    v323:Button("Rejoin Server", true, function()
-        pcall(function()
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
-        end)
-    end)
-    v323:Button("Unload Script", true, function()
-        if v324.enabled then
-            pcall(fn82)
-            task.wait(0.3)
-        end
-        for _, v460 in ipairs(v324.conns) do
-            pcall(function() v460:Disconnect() end)
-        end
-        v324.conns = {}
-        for v461, _ in pairs(v324.playerWatchConns) do
-            fn88(v461)
-        end
-        fn86()
-        v331 = {}
-        fn10()
-        fn62()
-        fn64()
-        fn29()
-        fn51()
-        fn53()
-        fn55()
-        pcall(function()
-            RunService:UnbindFromRenderStep(v21)
-        end)
-        pcall(function()
-            if UI and type(UI.Destroy) == "function" then UI:Destroy() end
-        end)
-        local function wipe(p164)
-            if not p164 then return end
-            for _, v464 in ipairs(p164:GetChildren()) do
-                if v464:IsA("ScreenGui") and (v464.Name:lower():find("wind") or v464.Name:lower():find("tempo") or v464.Name:lower():find("teek")) then
-                    pcall(function() v464:Destroy() end)
-                end
-            end
-        end
-        wipe(LocalPlayer:FindFirstChild("PlayerGui"))
-        wipe(CoreGui)
-        if env.__TEMPOHUB_CLEANUP then
-            pcall(env.__TEMPOHUB_CLEANUP)
-        end
-        print("[Tempo Hub] Script unloaded.")
+-- Misc
+tabMisc:Toggle("Anti AFK", false, function(v)
+    v39.antiAfk = v
+    if v then fn52() else fn53() end
+end)
+tabMisc:Toggle("FPS Boost", false, function(v)
+    v39.fpsBoost = v
+    if v then fn56() else fn55() end
+end)
+tabMisc:Section("Server")
+tabMisc:Button("Rejoin Server", true, function()
+    pcall(function()
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
     end)
 end)
-
-env.__TEMPOHUB_CLEANUP = function()
-    env.__TEMPOHUB_LOADED = false
-    if v324 and v324.enabled then pcall(fn82) end
-    if v324 and v324.conns then
-        for _, v466 in ipairs(v324.conns) do
-            pcall(function() v466:Disconnect() end)
-        end
-        v324.conns = {}
+tabMisc:Button("Unload Script", true, function()
+    if v324.enabled then
+        pcall(fn82)
+        task.wait(0.3)
     end
-    if v324 and v324.playerWatchConns then
-        for _, v468 in pairs(v324.playerWatchConns) do
-            pcall(function() v468:Disconnect() end)
-        end
-        v324.playerWatchConns = {}
+    for _, c in ipairs(v324.conns) do
+        pcall(function() c:Disconnect() end)
+    end
+    v324.conns = {}
+    for name, _ in pairs(v324.playerWatchConns) do
+        fn88(name)
     end
     fn86()
     v331 = {}
     fn10()
     fn62()
     fn64()
-    v71 = false
-    fn37()
     fn29()
     fn51()
     fn53()
     fn55()
+    pcall(function() RunService:UnbindFromRenderStep(v21) end)
     pcall(function()
-        RunService:UnbindFromRenderStep(v21)
+        if UI and type(UI.Destroy) == "function" then UI:Destroy() end
     end)
+    local function wipe(parent)
+        if not parent then return end
+        for _, ch in ipairs(parent:GetChildren()) do
+            if ch:IsA("ScreenGui") then
+                local n = ch.Name:lower()
+                if n:find("wind") or n:find("tempo") or n:find("teek") then
+                    pcall(function() ch:Destroy() end)
+                end
+            end
+        end
+    end
+    wipe(LocalPlayer:FindFirstChild("PlayerGui"))
+    wipe(CoreGui)
+    if env.__TEMPOHUB_CLEANUP then pcall(env.__TEMPOHUB_CLEANUP) end
+    print("[Tempo Hub] Script unloaded.")
+end)
+
+env.__TEMPOHUB_CLEANUP = function()
+    env.__TEMPOHUB_LOADED = false
+    if v324 and v324.enabled then pcall(fn82) end
+    if v324 and v324.conns then
+        for _, c in ipairs(v324.conns) do pcall(function() c:Disconnect() end) end
+        v324.conns = {}
+    end
+    if v324 and v324.playerWatchConns then
+        for _, c in pairs(v324.playerWatchConns) do pcall(function() c:Disconnect() end) end
+        v324.playerWatchConns = {}
+    end
+    pcall(fn86)
+    v331 = {}
+    pcall(fn10)
+    pcall(fn62)
+    pcall(fn64)
+    v71 = false
+    pcall(fn37)
+    pcall(fn29)
+    pcall(fn51)
+    pcall(fn53)
+    pcall(fn55)
+    pcall(function() RunService:UnbindFromRenderStep(v21) end)
     v74 = {}
     pcall(function()
         if UI and type(UI.Destroy) == "function" then UI:Destroy() end
@@ -2780,7 +2701,7 @@ env.__TEMPOHUB_CLEANUP = function()
 end
 
 if next(v325) == nil then
-    warn("[TempoHub] tier table empty: every user shows as TH USER. Add UserIds for higher tiers.")
+    warn("[TempoHub] tier table empty — everyone shows as TH USER. Add UserIds for higher tiers.")
 end
 if not v62 then
     task.spawn(function()
@@ -2794,4 +2715,5 @@ if not v4.available then
         Notify("Persistence", "Filesystem API unavailable. Last sword will not persist.")
     end)
 end
-Notify("Tempo Hub", "Loaded. V.0.2.0259")
+
+Notify("Tempo Hub", "Loaded — full LexBlade on TeekUI")
